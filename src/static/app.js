@@ -48,7 +48,27 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentUser = null;
   let isDarkMode = false;
 
+  function getSavedTheme() {
+    try {
+      return localStorage.getItem("theme");
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function saveTheme(theme) {
+    try {
+      localStorage.setItem("theme", theme);
+    } catch (error) {
+      // Ignore storage errors so theme toggling still works
+    }
+  }
+
   function updateThemeToggleUI() {
+    if (!themeToggleButton || !themeToggleIcon || !themeToggleLabel) {
+      return;
+    }
+
     themeToggleIcon.textContent = isDarkMode ? "☀️" : "🌙";
     themeToggleLabel.textContent = isDarkMode ? "Light mode" : "Dark mode";
     themeToggleButton.setAttribute("aria-pressed", isDarkMode ? "true" : "false");
@@ -61,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initializeTheme() {
-    const savedTheme = localStorage.getItem("theme");
+    const savedTheme = getSavedTheme();
     if (savedTheme === "dark" || savedTheme === "light") {
       applyTheme(savedTheme);
       return;
@@ -75,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function toggleTheme() {
     const nextTheme = isDarkMode ? "light" : "dark";
-    localStorage.setItem("theme", nextTheme);
+    saveTheme(nextTheme);
     applyTheme(nextTheme);
   }
 
@@ -273,7 +293,9 @@ document.addEventListener("DOMContentLoaded", () => {
   loginButton.addEventListener("click", openLoginModal);
   logoutButton.addEventListener("click", logout);
   closeLoginModal.addEventListener("click", closeLoginModalHandler);
-  themeToggleButton.addEventListener("click", toggleTheme);
+  if (themeToggleButton) {
+    themeToggleButton.addEventListener("click", toggleTheme);
+  }
 
   // Close login modal when clicking outside
   window.addEventListener("click", (event) => {
