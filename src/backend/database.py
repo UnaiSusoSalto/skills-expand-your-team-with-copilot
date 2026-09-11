@@ -20,10 +20,21 @@ def hash_password(password):
 def init_database():
     """Initialize database if empty"""
 
-    # Initialize activities if empty
-    if activities_collection.count_documents({}) == 0:
-        for name, details in initial_activities.items():
+    # Initialize any missing activities
+    existing_activity_ids = set(activities_collection.distinct("_id"))
+    for name, details in initial_activities.items():
+        if name not in existing_activity_ids:
             activities_collection.insert_one({"_id": name, **details})
+        elif name == "Manga Maniacs":
+            activities_collection.update_one(
+                {"_id": name},
+                {"$set": {
+                    "description": details["description"],
+                    "schedule": details["schedule"],
+                    "schedule_details": details["schedule_details"],
+                    "max_participants": details["max_participants"]
+                }}
+            )
             
     # Initialize teacher accounts if empty
     if teachers_collection.count_documents({}) == 0:
@@ -153,6 +164,17 @@ initial_activities = {
         "max_participants": 18,
         "participants": ["isabella@mergington.edu", "lucas@mergington.edu"]
     },
+    "Manga Maniacs": {
+        "description": "Dive into the action, emotion, and unforgettable heroes that make Japanese manga (graphic novels) so exciting.",
+        "schedule": "Tuesdays, 5:00 PM - 6:00 PM",
+        "schedule_details": {
+            "days": ["Tuesday"],
+            "start_time": "17:00",
+            "end_time": "18:00"
+        },
+        "max_participants": 25,
+        "participants": []
+    },
     "Sunday Chess Tournament": {
         "description": "Weekly tournament for serious chess players with rankings",
         "schedule": "Sundays, 2:00 PM - 5:00 PM",
@@ -186,4 +208,3 @@ initial_teachers = [
         "role": "admin"
     }
 ]
-
