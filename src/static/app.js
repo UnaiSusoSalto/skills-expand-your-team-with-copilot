@@ -521,11 +521,16 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    const currentPageUrl = `${window.location.origin}${window.location.pathname}`;
-    const shareUrl = `${currentPageUrl}?activity=${encodeURIComponent(name)}`;
+    const shareLinkUrl = new URL(window.location.href);
+    shareLinkUrl.searchParams.set("activity", name);
+    const shareUrl = shareLinkUrl.toString();
     const shareText = `Check out ${name} at Mergington High School! ${formattedSchedule}`;
     const fullShareText = `${shareText} ${shareUrl}`;
     const encodedFullShareText = encodeURIComponent(fullShareText);
+    const shareLabelId = `share-label-${name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")}`;
     const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
       shareUrl
     )}&quote=${encodeURIComponent(shareText)}`;
@@ -541,9 +546,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <span class="tooltip-text">Regular meetings at this time throughout the semester</span>
       </p>
       ${capacityIndicator}
-      <div class="social-share" aria-label="Share this activity">
-        <span class="share-label">Share:</span>
-        <div class="social-share-buttons">
+      <div class="social-share">
+        <span id="${shareLabelId}" class="share-label">Share:</span>
+        <div class="social-share-buttons" role="group" aria-labelledby="${shareLabelId}">
           <a class="social-share-button share-facebook" href="${facebookShareUrl}" target="_blank" rel="noopener noreferrer">Facebook</a>
           <a class="social-share-button share-x" href="${xShareUrl}" target="_blank" rel="noopener noreferrer">X</a>
           <a class="social-share-button share-whatsapp" href="${whatsappShareUrl}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
