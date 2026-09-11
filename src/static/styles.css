@@ -32,6 +32,19 @@
   --info-light: #d1ecf1;
 }
 
+body.dark-mode {
+  --primary: #2d3f98;
+  --primary-light: #4f63c0;
+  --primary-dark: #1b2a72;
+  --background: #121212;
+  --surface: #1e1e1e;
+  --text-primary: #f1f1f1;
+  --text-secondary: #c7c7c7;
+  --border: #3a3a3a;
+  --border-light: #2c2c2c;
+  --border-focus: #555555;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -617,6 +630,9 @@ footer {
   position: absolute;
   top: 10px;
   right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 #user-status {

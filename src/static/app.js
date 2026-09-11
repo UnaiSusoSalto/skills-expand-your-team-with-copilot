@@ -24,6 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
+  const themeToggleButton = document.getElementById("theme-toggle-button");
+  const themeToggleIcon = document.getElementById("theme-toggle-icon");
+  const themeToggleLabel = document.getElementById("theme-toggle-label");
 
   // Activity categories with corresponding colors
   const activityTypes = {
@@ -43,6 +46,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+  let isDarkMode = false;
+
+  function updateThemeToggleUI() {
+    themeToggleIcon.textContent = isDarkMode ? "☀️" : "🌙";
+    themeToggleLabel.textContent = isDarkMode ? "Light mode" : "Dark mode";
+  }
+
+  function applyTheme(theme) {
+    isDarkMode = theme === "dark";
+    document.body.classList.toggle("dark-mode", isDarkMode);
+    updateThemeToggleUI();
+  }
+
+  function initializeTheme() {
+    const savedTheme = localStorage.getItem("theme");
+    applyTheme(savedTheme === "dark" ? "dark" : "light");
+  }
+
+  function toggleTheme() {
+    const nextTheme = isDarkMode ? "light" : "dark";
+    localStorage.setItem("theme", nextTheme);
+    applyTheme(nextTheme);
+  }
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -238,6 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loginButton.addEventListener("click", openLoginModal);
   logoutButton.addEventListener("click", logout);
   closeLoginModal.addEventListener("click", closeLoginModalHandler);
+  themeToggleButton.addEventListener("click", toggleTheme);
 
   // Close login modal when clicking outside
   window.addEventListener("click", (event) => {
@@ -864,6 +891,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
+  initializeTheme();
   checkAuthentication();
   initializeFilters();
   fetchActivities();
