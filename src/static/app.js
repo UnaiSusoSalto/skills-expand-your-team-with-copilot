@@ -304,6 +304,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return details.schedule;
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   // Function to determine activity type (this would ideally come from backend)
   function getActivityType(activityName, description) {
     const name = activityName.toLowerCase();
@@ -469,13 +478,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Display filtered activities
-    Object.entries(filteredActivities).forEach(([name, details]) => {
-      renderActivityCard(name, details);
+    Object.entries(filteredActivities).forEach(([name, details], index) => {
+      renderActivityCard(name, details, index);
     });
   }
 
   // Function to render a single activity card
-  function renderActivityCard(name, details) {
+  function renderActivityCard(name, details, index) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
 
@@ -500,6 +509,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
+    const safeName = escapeHtml(name);
+    const safeDescription = escapeHtml(details.description);
+    const safeFormattedSchedule = escapeHtml(formattedSchedule);
 
     // Create activity tag
     const tagHtml = `
@@ -530,7 +542,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const shareLabelId = `share-label-${name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")}`;
+      .replace(/^-+|-+$/g, "")}-${index}`;
     const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
       shareUrl
     )}&quote=${encodeURIComponent(shareText)}`;
@@ -539,10 +551,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     activityCard.innerHTML = `
       ${tagHtml}
-      <h4>${name}</h4>
-      <p>${details.description}</p>
+      <h4>${safeName}</h4>
+      <p>${safeDescription}</p>
       <p class="tooltip">
-        <strong>Schedule:</strong> ${formattedSchedule}
+        <strong>Schedule:</strong> ${safeFormattedSchedule}
         <span class="tooltip-text">Regular meetings at this time throughout the semester</span>
       </p>
       ${capacityIndicator}
@@ -562,11 +574,13 @@ document.addEventListener("DOMContentLoaded", () => {
             .map(
               (email) => `
             <li>
-              ${email}
+              ${escapeHtml(email)}
               ${
                 currentUser
                   ? `
-                <span class="delete-participant tooltip" data-activity="${name}" data-email="${email}">
+                <span class="delete-participant tooltip" data-activity="${safeName}" data-email="${escapeHtml(
+                      email
+                    )}">
                   ✖
                   <span class="tooltip-text">Unregister this student</span>
                 </span>
@@ -583,7 +597,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ${
           currentUser
             ? `
-          <button class="register-button" data-activity="${name}" ${
+          <button class="register-button" data-activity="${safeName}" ${
                 isFull ? "disabled" : ""
               }>
             ${isFull ? "Activity Full" : "Register Student"}
@@ -622,8 +636,8 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (error) {
         console.error("Clipboard copy failed:", error);
         showMessage(
-          "We could not copy the link automatically. Please use a social button.",
-          "error"
+          "We could not copy the link automatically. Please copy the page URL from your browser.",
+          "info"
         );
       }
     });
