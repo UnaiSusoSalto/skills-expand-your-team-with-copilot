@@ -521,6 +521,17 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    const currentPageUrl = `${window.location.origin}${window.location.pathname}`;
+    const shareUrl = `${currentPageUrl}?activity=${encodeURIComponent(name)}`;
+    const shareText = `Check out ${name} at Mergington High School! ${formattedSchedule}`;
+    const fullShareText = `${shareText} ${shareUrl}`;
+    const encodedFullShareText = encodeURIComponent(fullShareText);
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      shareUrl
+    )}&quote=${encodeURIComponent(shareText)}`;
+    const xShareUrl = `https://twitter.com/intent/tweet?text=${encodedFullShareText}`;
+    const whatsappShareUrl = `https://wa.me/?text=${encodedFullShareText}`;
+
     activityCard.innerHTML = `
       ${tagHtml}
       <h4>${name}</h4>
@@ -530,6 +541,15 @@ document.addEventListener("DOMContentLoaded", () => {
         <span class="tooltip-text">Regular meetings at this time throughout the semester</span>
       </p>
       ${capacityIndicator}
+      <div class="social-share" aria-label="Share this activity">
+        <span class="share-label">Share:</span>
+        <div class="social-share-buttons">
+          <a class="social-share-button share-facebook" href="${facebookShareUrl}" target="_blank" rel="noopener noreferrer">Facebook</a>
+          <a class="social-share-button share-x" href="${xShareUrl}" target="_blank" rel="noopener noreferrer">X</a>
+          <a class="social-share-button share-whatsapp" href="${whatsappShareUrl}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          <button class="social-share-button copy-share-button" type="button">Copy Link</button>
+        </div>
+      </div>
       <div class="participants-list">
         <h5>Current Participants:</h5>
         <ul>
@@ -588,6 +608,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    const copyShareButton = activityCard.querySelector(".copy-share-button");
+    copyShareButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(fullShareText);
+        showMessage("Share details copied! You can paste them anywhere.", "success");
+      } catch (error) {
+        console.error("Clipboard copy failed:", error);
+        showMessage(
+          "We could not copy the link automatically. Please use a social button.",
+          "error"
+        );
+      }
+    });
 
     activitiesList.appendChild(activityCard);
   }
