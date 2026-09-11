@@ -87,9 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const prefersDarkMode = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
+    const prefersDarkMode =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
     applyTheme(prefersDarkMode ? "dark" : "light");
   }
 
