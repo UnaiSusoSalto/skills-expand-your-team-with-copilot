@@ -454,16 +454,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      const hasDifficulty = !!details.difficulty;
-
-      if (currentDifficulty === "all" && hasDifficulty) {
-        return;
-      }
-
-      if (currentDifficulty !== "all" && details.difficulty !== currentDifficulty) {
-        return;
-      }
-
       // Apply search filter
       const searchableContent = [
         name.toLowerCase(),
