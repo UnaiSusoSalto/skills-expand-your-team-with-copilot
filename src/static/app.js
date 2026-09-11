@@ -304,6 +304,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return details.schedule;
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   // Function to determine activity type (this would ideally come from backend)
   function getActivityType(activityName, description) {
     const name = activityName.toLowerCase();
@@ -469,13 +478,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Display filtered activities
-    Object.entries(filteredActivities).forEach(([name, details]) => {
-      renderActivityCard(name, details);
+    Object.entries(filteredActivities).forEach(([name, details], index) => {
+      renderActivityCard(name, details, index);
     });
   }
 
   // Function to render a single activity card
-  function renderActivityCard(name, details) {
+  function renderActivityCard(name, details, index) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
 
@@ -500,6 +509,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
+    const safeName = escapeHtml(name);
+    const safeDescription = escapeHtml(details.description);
+    const safeFormattedSchedule = escapeHtml(formattedSchedule);
 
     // Create activity tag
     const tagHtml = `
@@ -521,15 +533,40 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    const shareLinkUrl = new URL(window.location.href);
+    shareLinkUrl.searchParams.set("activity", name);
+    const shareUrl = shareLinkUrl.toString();
+    const shareText = `Check out ${name} at Mergington High School! ${details.description} ${formattedSchedule}`;
+    const fullShareText = `${shareText} ${shareUrl}`;
+    const encodedFullShareText = encodeURIComponent(fullShareText);
+    const shareLabelId = `share-label-${name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")}-${index}`;
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      shareUrl
+    )}&quote=${encodeURIComponent(shareText)}`;
+    const xShareUrl = `https://twitter.com/intent/tweet?text=${encodedFullShareText}`;
+    const whatsappShareUrl = `https://wa.me/?text=${encodedFullShareText}`;
+
     activityCard.innerHTML = `
       ${tagHtml}
-      <h4>${name}</h4>
-      <p>${details.description}</p>
+      <h4>${safeName}</h4>
+      <p>${safeDescription}</p>
       <p class="tooltip">
-        <strong>Schedule:</strong> ${formattedSchedule}
+        <strong>Schedule:</strong> ${safeFormattedSchedule}
         <span class="tooltip-text">Regular meetings at this time throughout the semester</span>
       </p>
       ${capacityIndicator}
+      <div class="social-share">
+        <span id="${shareLabelId}" class="share-label">Share:</span>
+        <div class="social-share-buttons" role="group" aria-labelledby="${shareLabelId}">
+          <a class="social-share-button share-facebook" href="${facebookShareUrl}" target="_blank" rel="noopener noreferrer">Facebook</a>
+          <a class="social-share-button share-x" href="${xShareUrl}" target="_blank" rel="noopener noreferrer">X</a>
+          <a class="social-share-button share-whatsapp" href="${whatsappShareUrl}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          <button class="social-share-button copy-share-button" type="button">Copy Link</button>
+        </div>
+      </div>
       <div class="participants-list">
         <h5>Current Participants:</h5>
         <ul>
@@ -537,11 +574,13 @@ document.addEventListener("DOMContentLoaded", () => {
             .map(
               (email) => `
             <li>
-              ${email}
+              ${escapeHtml(email)}
               ${
                 currentUser
                   ? `
-                <span class="delete-participant tooltip" data-activity="${name}" data-email="${email}">
+                <span class="delete-participant tooltip" data-activity="${encodeURIComponent(
+                  name
+                )}" data-email="${encodeURIComponent(email)}">
                   ✖
                   <span class="tooltip-text">Unregister this student</span>
                 </span>
@@ -558,7 +597,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ${
           currentUser
             ? `
-          <button class="register-button" data-activity="${name}" ${
+          <button class="register-button" data-activity="${encodeURIComponent(
+            name
+          )}" ${
                 isFull ? "disabled" : ""
               }>
             ${isFull ? "Activity Full" : "Register Student"}
@@ -584,10 +625,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const registerButton = activityCard.querySelector(".register-button");
       if (!isFull) {
         registerButton.addEventListener("click", () => {
-          openRegistrationModal(name);
+          const activityName = decodeURIComponent(registerButton.dataset.activity);
+          openRegistrationModal(activityName);
         });
       }
     }
+
+    const copyShareButton = activityCard.querySelector(".copy-share-button");
+    copyShareButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        showMessage("Link copied! You can paste it anywhere.", "success");
+      } catch (error) {
+        console.error("Clipboard copy failed:", error);
+        showMessage(
+          "We could not copy the link automatically. Please copy the page URL from your browser.",
+          "info"
+        );
+      }
+    });
 
     activitiesList.appendChild(activityCard);
   }
@@ -765,8 +821,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const activity = event.target.dataset.activity;
-    const email = event.target.dataset.email;
+    const activity = decodeURIComponent(event.currentTarget.dataset.activity);
+    const email = decodeURIComponent(event.currentTarget.dataset.email);
 
     // Show confirmation dialog
     showConfirmationDialog(
