@@ -578,9 +578,9 @@ document.addEventListener("DOMContentLoaded", () => {
               ${
                 currentUser
                   ? `
-                <span class="delete-participant tooltip" data-activity="${safeName}" data-email="${escapeHtml(
-                      email
-                    )}">
+                <span class="delete-participant tooltip" data-activity="${encodeURIComponent(
+                  name
+                )}" data-email="${encodeURIComponent(email)}">
                   ✖
                   <span class="tooltip-text">Unregister this student</span>
                 </span>
@@ -597,7 +597,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ${
           currentUser
             ? `
-          <button class="register-button" data-activity="${safeName}" ${
+          <button class="register-button" data-activity="${encodeURIComponent(
+            name
+          )}" ${
                 isFull ? "disabled" : ""
               }>
             ${isFull ? "Activity Full" : "Register Student"}
@@ -818,8 +820,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const activity = event.target.dataset.activity;
-    const email = event.target.dataset.email;
+    const activity = decodeURIComponent(event.currentTarget.dataset.activity);
+    const email = decodeURIComponent(event.currentTarget.dataset.email);
 
     // Show confirmation dialog
     showConfirmationDialog(
