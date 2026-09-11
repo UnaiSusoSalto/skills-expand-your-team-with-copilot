@@ -32,6 +32,19 @@
   --info-light: #d1ecf1;
 }
 
+body.dark-mode {
+  --primary: #2d3f98;
+  --primary-light: #4f63c0;
+  --primary-dark: #1b2a72;
+  --background: #121212;
+  --surface: #1e1e1e;
+  --text-primary: #f1f1f1;
+  --text-secondary: #c7c7c7;
+  --border: #3a3a3a;
+  --border-light: #2c2c2c;
+  --border-focus: #555555;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -181,6 +194,63 @@ section h3 {
 .activity-card p {
   margin-bottom: 8px;
   line-height: 1.4;
+}
+
+.social-share {
+  margin: 6px 0 10px 0;
+}
+
+.share-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.social-share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.social-share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: white;
+  transition: opacity 0.2s ease;
+}
+
+.social-share-button:hover {
+  opacity: 0.9;
+}
+
+.social-share-button:focus-visible {
+  outline: 2px solid var(--primary-dark);
+  outline-offset: 2px;
+}
+
+.share-facebook {
+  background-color: #1877f2;
+}
+
+.share-x {
+  background-color: #111111;
+}
+
+.share-whatsapp {
+  background-color: #25d366;
+}
+
+.copy-share-button {
+  background-color: var(--primary-light);
 }
 
 .activity-card-actions {
@@ -621,6 +691,9 @@ footer {
   position: absolute;
   top: 10px;
   right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 #user-status {
