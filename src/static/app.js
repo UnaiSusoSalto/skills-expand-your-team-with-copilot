@@ -524,7 +524,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const shareLinkUrl = new URL(window.location.href);
     shareLinkUrl.searchParams.set("activity", name);
     const shareUrl = shareLinkUrl.toString();
-    const shareText = `Check out ${name} at Mergington High School! ${formattedSchedule}`;
+    const shareText = `Check out ${name} at Mergington High School! ${details.description} ${formattedSchedule}`;
     const fullShareText = `${shareText} ${shareUrl}`;
     const encodedFullShareText = encodeURIComponent(fullShareText);
     const shareLabelId = `share-label-${name
@@ -617,8 +617,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const copyShareButton = activityCard.querySelector(".copy-share-button");
     copyShareButton.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(fullShareText);
-        showMessage("Share details copied! You can paste them anywhere.", "success");
+        await navigator.clipboard.writeText(shareUrl);
+        showMessage("Link copied! You can paste it anywhere.", "success");
       } catch (error) {
         console.error("Clipboard copy failed:", error);
         showMessage(
