@@ -625,7 +625,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const registerButton = activityCard.querySelector(".register-button");
       if (!isFull) {
         registerButton.addEventListener("click", () => {
-          openRegistrationModal(name);
+          const activityName = decodeURIComponent(registerButton.dataset.activity);
+          openRegistrationModal(activityName);
         });
       }
     }
